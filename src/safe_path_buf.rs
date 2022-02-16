@@ -108,7 +108,10 @@ mod tests {
         symlink("/endpoint", rootfs_path.join("symlink_dir/endpoint")).unwrap();
         fs::write(rootfs_path.join("endpoint"), "test").unwrap();
         let path = SafePathBuf::new(rootfs_path, "symlink_dir/endpoint").unwrap();
-        let link = fs::read_link(&path).unwrap();
+        println!("{:?}", path);
+        assert!(!path.is_dir());
+        let path_ref = path.as_ref();
+        let link = fs::read_link(path_ref).unwrap();
         assert_eq!(link, rootfs_path.join("endpoint"));
         let content = fs::read_to_string(&path).unwrap();
         assert_eq!(&content, "test");

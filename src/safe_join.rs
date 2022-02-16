@@ -15,12 +15,6 @@ fn do_scoped_resolve<R: AsRef<Path>, U: AsRef<Path>>(
     unsafe_path: U,
 ) -> Result<(PathBuf, PathBuf)> {
     let root = root.as_ref().canonicalize()?;
-    if !root.is_absolute() {
-        return Err(Error::new(
-            ErrorKind::Other,
-            format!("Invalid root path: {}", root.display()),
-        ));
-    }
 
     let mut nlinks = 0u32;
     let mut curr_path = unsafe_path.as_ref().to_path_buf();
@@ -236,6 +230,13 @@ mod tests {
         ];
 
         exec_tests(&tests);
+    }
+
+    #[test]
+    fn test_scoped_resolve_invalid() {
+        scoped_resolve(".a", ".").unwrap_err();
+        scoped_resolve("C:", ".").unwrap_err();
+        scoped_resolve(r#"\\server\test"#, ".").unwrap_err();
     }
 
     #[test]

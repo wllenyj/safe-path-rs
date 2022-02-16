@@ -122,6 +122,7 @@ mod tests {
         SafeDirBuilder::new(rootfs_path.join("txt")).unwrap_err();
 
         let mut builder = SafeDirBuilder::new(&rootfs_path).unwrap();
+        println!("{:?}", builder);
         builder.create("/txt/a").unwrap_err();
 
         let path = builder.create(rootfs_path.join(".")).unwrap();
@@ -139,6 +140,12 @@ mod tests {
         let path = builder.create(rootfs_path.join("a/b/c/d")).unwrap();
         assert_eq!(path.target(), rootfs_path.join("a/b/c/d"));
         assert!(rootfs_path.join("a/b/c/d").is_dir());
+
+        builder.create(rootfs_path.join("txt/e/f")).unwrap_err();
+
+        fs::write(rootfs_path.join("a/b/txt"), "test").unwrap();
+        builder.create(rootfs_path.join("a/b/txt/h/i")).unwrap_err();
+
         assert_eq!(
             rootfs_path.join("a").metadata().unwrap().mode() & 0o777,
             DIRECTORY_MODE_DEFAULT,
@@ -155,7 +162,5 @@ mod tests {
             rootfs_path.join("a/b/c/d").metadata().unwrap().mode() & 0o777,
             0o740
         );
-
-        builder.create(rootfs_path.join("txt/e/f")).unwrap_err();
     }
 }

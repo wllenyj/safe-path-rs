@@ -62,3 +62,16 @@ fn open_by_path<P: AsRef<Path>>(path: P) -> std::io::Result<File> {
         .custom_flags(o_flags)
         .open(path.as_ref())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_open_by_path() {
+        let rootfs_dir = tempfile::tempdir().expect("failed to create tmpdir");
+        let rootfs_path = rootfs_dir.path();
+        let _file = open_by_path(rootfs_path).unwrap();
+        open_by_path(rootfs_path.join("do_not_exist")).unwrap_err();
+    }
+}
